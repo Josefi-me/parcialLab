@@ -27,11 +27,12 @@ datos=None
 
 archivosCSV = st.sidebar.file_uploader("Sube un archivo csv", type=["csv"])
 if archivosCSV:
-    archivo = pd.read_csv(archivosCSV)
+    datos = pd.read_csv(archivosCSV)
     sucursales=["Todas"]+datos["Sucursal"].unique().tolist()
-
+    
 seleccionSucursal= st.sidebar.selectbox("Seleccione una sucursal: ", sucursales)
 if archivo is not None:
+    datos = archivo
     if seleccionSucursal != "Todas":
         datos = datos[datos["Sucursal"] == seleccionSucursal]
         st.title(f"Datos de {seleccionSucursal}")
