@@ -75,7 +75,7 @@ if archivo is not None:
                 with col1:
                     st.subheader(producto)
                     st.metric("Precio promedio:", f"${precio_promedio:,.0f}", f"{variacionPrecioPromedio:.2f}%")
-                    st.metric("Margen promedio:", f"{margen_promedio:.0}%", f"{variacionMargenAnual:.2f}%")
+                    st.metric("Margen promedio:", f"{margen_promedio:.0%}", f"{variacionMargenAnual:.2f}%")
                     st.metric("Unidades Vendidas:", f"{unidades_vendidas:,.0f}", f"{variacionPorcentual:.2f}%")
                 
                 with col2:
