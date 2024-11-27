@@ -39,13 +39,33 @@ if archivo is not None:
 
     productos= datos["Producto"].unique()
 
-    '''for producto in productos:
+    for producto in productos:
         datosP = datos[datos["Producto"] == producto]
-        unidades_vendidas = datosP["Unidades_vendidas"].sum()
-        ingreso_total = datosP["Ingreso_total"].sum()
-        costo_total = datosP["Costo_total"].sum()
+        #unidades_vendidas = datosP["Unidades_vendidas"].sum()
+        #ingreso_total = datosP["Ingreso_total"].sum()
+        #costo_total = datosP["Costo_total"].sum()
         
         datosP['Precio_promedio'] = datosP['Ingreso_total'] / datosP['Unidades_vendidas']
+        precio_promedio = datosP['Precio_promedio'].mean()
+     
+        precio_promedio_anual = datosP.groupby('Año')['Precio_promedio'].mean()
+        variacionPrecioPromedio = precio_promedio_anual.pct_change().mean() * 100
+
+        datosP['Ganancia'] = datosP['Ingreso_total'] - datosP['Costo_total']
+        datosP['Margen'] = (datosP['Ganancia'] / datosP['Ingreso_total']) * 100
+        margen_promedio = datosP['Margen'].mean()
+            
+        margen_promedio_anual = datosP.groupby('Año')['Margen'].mean()
+        variacionMargenAnual= margen_promedio_anual.pct_change().mean() * 100
+
+        unidades_promedio = datosP['Unidades_vendidas'].mean()
+        unidades_vendidas = datosP['Unidades_vendidas'].sum()
+   
+        unidades_por_año = datosP.groupby('Año')['Unidades_vendidas'].sum()
+        variacionPorcentual = unidades_por_año.pct_change().mean() * 100
+            
+            
+        '''datosP['Precio_promedio'] = datosP['Ingreso_total'] / datosP['Unidades_vendidas']
         precio_promedio = datosP['Precio_promedio'].mean()
 
         margen_promedio = (ingreso_total - costo_total) / ingreso_total
@@ -57,26 +77,7 @@ if archivo is not None:
         precioPromedioAnual = datosP.groupby("Año")['Ingreso_total'].sum() / datosP.groupby("Año")['Unidades_vendidas'].sum()
         variacionPrecioPromedio = precioPromedioAnual.pct_change().iloc[-1] * 100
         
-        variacionMargenAnual = margenAnual.pct_change().iloc[-1] * 100
-    '''
-    for producto in productos:
-        datosP = datos[datos["Producto"] == producto]
-        datosP["Precio_promedio"] = datosP["Ingreso_total"] / datosP["Unidades_vendidas"]
-        datosP["Margen"] = (datosP["Ingreso_total"] - datosP["Costo_total"]) / datosP["Ingreso_total"]
-
-        # Calcular promedios globales
-        precio_promedio = datosP["Precio_promedio"].mean()
-        margen_promedio = datosP["Margen"].mean()
-
-        # Agrupaciones por año
-        precioPromedioAnual = datosP.groupby("Año")["Precio_promedio"].mean()
-        margenAnual = datosP.groupby("Año")["Margen"].mean()
-        ventasAnuales = datosP.groupby("Año")["Unidades_vendidas"].sum()
-
-        # Variaciones anuales
-        variacionPrecioPromedio = precioPromedioAnual.pct_change().mean() * 100
-        variacionMargenAnual = margenAnual.pct_change().mean() * 100
-        variacionPorcentual = ventasAnuales.pct_change().mean() * 100
+        variacionMargenAnual = margenAnual.pct_change().iloc[-1] * 100'''
 
 
         with st.container():
@@ -99,7 +100,7 @@ if archivo is not None:
                 
                     st.metric("Precio promedio:", f"${precio_promedio:,.0f}".replace(",", "."), delta=f"{variacionPrecioPromedio:.2f}%")
                     st.metric("Margen promedio:", f"{margen_promedio:.0%}".replace(",", "."), delta=f"{variacionMargenAnual:.2f}%")
-                    st.metric("Unidades Vendidas:", f"{ventasAnuales:,.0f}".replace(",", "."), delta=f"{variacionPorcentual:.2f}%")
+                    st.metric("Unidades Vendidas:", f"{unidades_vendidas:,.0f}".replace(",", "."), delta=f"{variacionPorcentual:.2f}%")
                 with col2:
                     ventasMensuales = datosP.groupby(["Año", "Mes"])["Unidades_vendidas"].sum().reset_index()
                     ventasMensuales["Fecha"] = pd.to_datetime(ventasMensuales["Año"].astype(str) + "-" + ventasMensuales["Mes"].astype(str) + "-01")
