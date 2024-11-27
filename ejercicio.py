@@ -40,16 +40,14 @@ if archivo is not None:
     productos= datos["Producto"].unique()
 
     for producto in productos:
-        #with st.container(border=True):
         datosP = datos[datos["Producto"] == producto]
         unidades_vendidas = datosP["Unidades_vendidas"].sum()
         ingreso_total = datosP["Ingreso_total"].sum()
         costo_total = datosP["Costo_total"].sum()
         
-        # Calcular precio promedio como en el primer código
         datosP['Precio_promedio'] = datosP['Ingreso_total'] / datosP['Unidades_vendidas']
         precio_promedio = datosP['Precio_promedio'].mean()
-        
+
         margen_promedio = (ingreso_total - costo_total) / ingreso_total
         margenAnual = (datosP.groupby("Año")["Ingreso_total"].sum() - datosP.groupby("Año")["Costo_total"].sum()) / datosP.groupby("Año")["Ingreso_total"].sum()
         
@@ -60,7 +58,7 @@ if archivo is not None:
         variacionPrecioPromedio = precioPromedioAnual.pct_change().iloc[-1] * 100
         
         variacionMargenAnual = margenAnual.pct_change().iloc[-1] * 100
-            #promedio precio
+
 
         with st.container():
                 st.markdown("""
@@ -76,8 +74,8 @@ if archivo is not None:
                 col1, col2 = st.columns([1, 2])
                 with col1:
                     st.subheader(producto)
-                    st.metric("Precio promedio:", f"${precio_promedio:,.0f}", f"{variacionPrecioPromedio:.2f}%", delta_color="normal")
-                    st.metric("Margen promedio:", f"{margen_promedio:.0%}", f"{variacionMargenAnual:.2f}%")
+                    st.metric("Precio promedio:", f"${precio_promedio:,.0f}", f"{variacionPrecioPromedio:.2f}%")
+                    st.metric("Margen promedio:", f"{margen_promedio:.0}%", f"{variacionMargenAnual:.2f}%")
                     st.metric("Unidades Vendidas:", f"{unidades_vendidas:,.0f}", f"{variacionPorcentual:.2f}%")
                 
                 with col2:
