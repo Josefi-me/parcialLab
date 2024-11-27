@@ -28,7 +28,6 @@ datos=None
 archivosCSV = st.sidebar.file_uploader("Sube un archivo csv", type=["csv"])
 if archivosCSV:
     archivo = pd.read_csv(archivosCSV)
-    #sucursales=["Todas"]+datos["Sucursal"].unique().tolist()
     
 seleccionSucursal= st.sidebar.selectbox("Seleccione una sucursal: ", sucursales)
 if archivo is not None:
@@ -42,10 +41,7 @@ if archivo is not None:
     for producto in productos:
         with st.container(border=True):
             datosP = datos[datos["Producto"] == producto]
-            #unidades_vendidas = datosP["Unidades_vendidas"].sum()
-            #ingreso_total = datosP["Ingreso_total"].sum()
-            #costo_total = datosP["Costo_total"].sum()
-            
+
             datosP['Precio_promedio'] = datosP['Ingreso_total'] / datosP['Unidades_vendidas']
             precio_promedio = datosP['Precio_promedio'].mean()
         
@@ -65,21 +61,6 @@ if archivo is not None:
             unidades_por_año = datosP.groupby('Año')['Unidades_vendidas'].sum()
             variacionPorcentual = unidades_por_año.pct_change().mean() * 100
                 
-                
-            '''datosP['Precio_promedio'] = datosP['Ingreso_total'] / datosP['Unidades_vendidas']
-            precio_promedio = datosP['Precio_promedio'].mean()
-
-            margen_promedio = (ingreso_total - costo_total) / ingreso_total
-            margenAnual = (datosP.groupby("Año")["Ingreso_total"].sum() - datosP.groupby("Año")["Costo_total"].sum()) / datosP.groupby("Año")["Ingreso_total"].sum()
-            
-            ventasAnuales = datosP.groupby("Año")["Unidades_vendidas"].sum()
-            variacionPorcentual = ventasAnuales.pct_change().iloc[-1] * 100
-            
-            precioPromedioAnual = datosP.groupby("Año")['Ingreso_total'].sum() / datosP.groupby("Año")['Unidades_vendidas'].sum()
-            variacionPrecioPromedio = precioPromedioAnual.pct_change().iloc[-1] * 100
-            
-            variacionMargenAnual = margenAnual.pct_change().iloc[-1] * 100'''
-
 
             with st.container():
                     st.markdown("""
