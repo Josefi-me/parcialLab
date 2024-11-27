@@ -39,7 +39,7 @@ if archivo is not None:
 
     productos= datos["Producto"].unique()
 
-    for producto in productos:
+    '''for producto in productos:
         datosP = datos[datos["Producto"] == producto]
         unidades_vendidas = datosP["Unidades_vendidas"].sum()
         ingreso_total = datosP["Ingreso_total"].sum()
@@ -58,6 +58,25 @@ if archivo is not None:
         variacionPrecioPromedio = precioPromedioAnual.pct_change().iloc[-1] * 100
         
         variacionMargenAnual = margenAnual.pct_change().iloc[-1] * 100
+    '''
+    for producto in productos:
+        datosP = datos[datos["Producto"] == producto]
+        datosP["Precio_promedio"] = datosP["Ingreso_total"] / datosP["Unidades_vendidas"]
+        datosP["Margen"] = (datosP["Ingreso_total"] - datosP["Costo_total"]) / datosP["Ingreso_total"]
+
+        # Calcular promedios globales
+        precio_promedio = datosP["Precio_promedio"].mean()
+        margen_promedio = datosP["Margen"].mean()
+
+        # Agrupaciones por año
+        precioPromedioAnual = datosP.groupby("Año")["Precio_promedio"].mean()
+        margenAnual = datosP.groupby("Año")["Margen"].mean()
+        ventasAnuales = datosP.groupby("Año")["Unidades_vendidas"].sum()
+
+        # Variaciones anuales
+        variacionPrecioPromedio = precioPromedioAnual.pct_change().mean() * 100
+        variacionMargenAnual = margenAnual.pct_change().mean() * 100
+        variacionPorcentual = ventasAnuales.pct_change().mean() * 100
 
 
         with st.container():
@@ -80,7 +99,7 @@ if archivo is not None:
                 
                     st.metric("Precio promedio:", f"${precio_promedio:,.0f}".replace(",", "."), delta=f"{variacionPrecioPromedio:.2f}%")
                     st.metric("Margen promedio:", f"{margen_promedio:.0%}".replace(",", "."), delta=f"{variacionMargenAnual:.2f}%")
-                    st.metric("Unidades Vendidas:", f"{unidades_vendidas:,.0f}".replace(",", "."), delta=f"{variacionPorcentual:.2f}%")
+                    st.metric("Unidades Vendidas:", f"{ventasAnuales:,.0f}".replace(",", "."), delta=f"{variacionPorcentual:.2f}%")
                 with col2:
                     ventasMensuales = datosP.groupby(["Año", "Mes"])["Unidades_vendidas"].sum().reset_index()
                     ventasMensuales["Fecha"] = pd.to_datetime(ventasMensuales["Año"].astype(str) + "-" + ventasMensuales["Mes"].astype(str) + "-01")
