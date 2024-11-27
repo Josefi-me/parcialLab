@@ -52,12 +52,12 @@ if archivo is not None:
         margenAnual = (datosP.groupby("Año")["Ingreso_total"].sum() - datosP.groupby("Año")["Costo_total"].sum()) / datosP.groupby("Año")["Ingreso_total"].sum()
         
         ventasAnuales = datosP.groupby("Año")["Unidades_vendidas"].sum()
-        variacionPorcentual = ventasAnuales.pct_change().iloc[-1] * 100
+        variacionPorcentual = ventasAnuales.pct_change().iloc[-1] * 100 if len(ventasAnuales) > 1 else 0
         
         precioPromedioAnual = datosP.groupby("Año")['Ingreso_total'].sum() / datosP.groupby("Año")['Unidades_vendidas'].sum()
-        variacionPrecioPromedio = precioPromedioAnual.pct_change().iloc[-1] * 100
+        variacionPrecioPromedio = precioPromedioAnual.pct_change().iloc[-1] * 100 if len(precioPromedioAnual) > 1 else 0
         
-        variacionMargenAnual = margenAnual.pct_change().iloc[-1] * 100
+        variacionMargenAnual = margenAnual.pct_change().iloc[-1] * 100 if len(margenAnual) > 1 else 0
 
 
         with st.container():
@@ -74,10 +74,13 @@ if archivo is not None:
                 col1, col2 = st.columns([1, 2])
                 with col1:
                     st.subheader(producto)
-                    st.metric("Precio promedio:", f"${precio_promedio:,.0f}", f"{variacionPrecioPromedio:.2f}%")
-                    st.metric("Margen promedio:", f"{margen_promedio:.0%}", f"{variacionMargenAnual:.2f}%")
-                    st.metric("Unidades Vendidas:", f"{unidades_vendidas:,.0f}", f"{variacionPorcentual:.2f}%")
+                    #st.metric("Precio promedio:", f"${precio_promedio:,.0f}", f"{variacionPrecioPromedio:.2f}%")
+                    #st.metric("Margen promedio:", f"{margen_promedio:.0%}", f"{variacionMargenAnual:.2f}%")
+                    #st.metric("Unidades Vendidas:", f"{unidades_vendidas:,.0f}", f"{variacionPorcentual:.2f}%")
                 
+                    st.metric("Precio promedio:", f"${precio_promedio:,.0f}".replace(",", "."), delta=f"{variacionPrecioPromedio:.2f}%")
+                    st.metric("Margen promedio:", f"{margen_promedio:.0%}".replace(",", "."), delta=f"{variacionMargenAnual:.2f}%")
+                    st.metric("Unidades Vendidas:", f"{unidades_vendidas:,.0f}".replace(",", "."), delta=f"{variacionPorcentual:.2f}%")
                 with col2:
                     ventasMensuales = datosP.groupby(["Año", "Mes"])["Unidades_vendidas"].sum().reset_index()
                     ventasMensuales["Fecha"] = pd.to_datetime(ventasMensuales["Año"].astype(str) + "-" + ventasMensuales["Mes"].astype(str) + "-01")
