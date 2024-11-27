@@ -21,107 +21,79 @@ def mostrar_informacion_alumno():
 
 mostrar_informacion_alumno()
 
-#sucursales=["Todas", "Sucursal Norte", "Sucursal Sur", "Sucursal Centro"]
+sucursales=["Todas", "Sucursal Norte", "Sucursal Sur", "Sucursal Centro"]
 archivo=None
 datos=None
 
 archivosCSV = st.sidebar.file_uploader("Sube un archivo csv", type=["csv"])
 if archivosCSV:
-    datos = pd.read_csv(archivosCSV)
-    sucursales=["Todas"]+datos["Sucursal"].unique().tolist()
+    archivo = pd.read_csv(archivosCSV)
+    #sucursales=["Todas"]+datos["Sucursal"].unique().tolist()
     
 seleccionSucursal= st.sidebar.selectbox("Seleccione una sucursal: ", sucursales)
 if archivo is not None:
-    datos = archivo
-    if seleccionSucursal != "Todas":
-        datos = datos[datos["Sucursal"] == seleccionSucursal]
-        st.title(f"Datos de {seleccionSucursal}")
+    if seleccionSucursal == "Todas":
+        datos=archivo
     else:
-        #datos =archivo[archivo["Sucursal"] == seleccionSucursal]
-        st.title("Datos de todas las sucursales")
+        datos =archivo[archivo["Sucursal"] == seleccionSucursal]
 
     productos= datos["Producto"].unique()
 
     for producto in productos:
-        with st.container(border=True):
-            datosP = datos[datos["Producto"] == producto]
-            #promedio precio
-            datosP["Precio_promedio"] = datosP["Ingreso_total"]/ datosP["Unidades_vendidas"]
-            precio_promedio=datosP["Precio_promedio"].mean()
-            PrecioPromedioAnual=datosP.groupby("Año")["Precio_promedio"].mean()
-            variacionPrecioPromedio = PrecioPromedioAnual.pct_change().mean()*100
-            
-            #ganancias p 
-            datosP["Ganancia"] = datosP["Ingreso_total"] - datosP["Costo_total"]
-            datosP["Margen"]=(datosP["Ganancia"] / datosP["Ingreso_total"]) * 100
-            margen_promedio = datosP["Margen"].mean()
-            
-            #variacion anual 
-            margen_promedio_anual = datosP.groupby("Año")["Margen"].mean()
-            unidades_vendidas = margen_promedio_anual.pct_change().mean() * 100
-            unidadesPromedio = datosP["Unidades_vendidas"].mean()
-            unidades_vendidas= datosP["Unidades_vendidas"].sum()
-            
-            unidadesAnuales = datosP.groupby("Año")["Unidades_vendidas"].sum()
-            variacionAnualUnidades = unidadesAnuales.pct_change().mean * 100
-            
-        '''unidades_vendidas= datosP["Unidades_vendidas"].sum()
-        ingreso_total=datosP["Ingreso_total"].sum()
-        costo_total=datosP["Costo_total"].sum()
-        #p/flechitas de variacion porcentual
-        ventasAnuales= datosP.groupby("Año")["Unidades_vendidas"].sum()
-        ingresosTotalAnual=datosP.groupby("Año")["Ingreso_total"].sum()
-        costoAnual = datosP.groupby("Año")["Costo_total"].sum()
+        #with st.container(border=True):
+        datosP = datos[datos["Producto"] == producto]
+        unidades_vendidas = datosP["Unidades_vendidas"].sum()
+        ingreso_total = datosP["Ingreso_total"].sum()
+        costo_total = datosP["Costo_total"].sum()
         
-        precio_promedio=ingreso_total / unidades_vendidas 
+        # Calcular precio promedio como en el primer código
+        datosP['Precio_promedio'] = datosP['Ingreso_total'] / datosP['Unidades_vendidas']
+        precio_promedio = datosP['Precio_promedio'].mean()
+        
         margen_promedio = (ingreso_total - costo_total) / ingreso_total
-        margenAnual = (ingresosTotalAnual - costoAnual)/ingresosTotalAnual
+        margenAnual = (datosP.groupby("Año")["Ingreso_total"].sum() - datosP.groupby("Año")["Costo_total"].sum()) / datosP.groupby("Año")["Ingreso_total"].sum()
         
-        variacionPorcentual= ventasAnuales.pct_change().iloc[-1]*100
-        precioPromedioAnual = ingresosTotalAnual/ventasAnuales
-        variacionPrecioPromedio =precioPromedioAnual.pct_change().iloc[-1]*100
-        variacionMargenAnual=margenAnual.pct_change().iloc[-1] * 100 '''
+        ventasAnuales = datosP.groupby("Año")["Unidades_vendidas"].sum()
+        variacionPorcentual = ventasAnuales.pct_change().iloc[-1] * 100
+        
+        precioPromedioAnual = datosP.groupby("Año")['Ingreso_total'].sum() / datosP.groupby("Año")['Unidades_vendidas'].sum()
+        variacionPrecioPromedio = precioPromedioAnual.pct_change().iloc[-1] * 100
+        
+        variacionMargenAnual = margenAnual.pct_change().iloc[-1] * 100
+            #promedio precio
+
         with st.container():
-            st.markdown(
-            """
-            <div style="
-                border: 0.5px solid #ddd;
-                padding: 0.5px;
-                margin-bottom: 10px;
-                border-radius: 4px;
-                background-color: #fafafa;
-                box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.1);">
-            """,
-            unsafe_allow_html=True,
-        )
-            col1, col2 = st.columns([1,2])
-            with col1:
-                st.subheader(producto)
-                #st.metric("Precio promedio:", f"${int(precio_promedio):,}", f"{variacionPrecioPromedio:.2f}%", delta_color="normal")
-                #st.metric("Margen promedio:", f"{round(margen_promedio * 100)}%", f"{variacionMargenAnual:.2f}%")
-                #st.metric("Unidades Vendidas:", f"{unidades_vendidas:,.2f}", f"{variacionPorcentual:.2f}%")
-            
-                st.metric(label="Precio Promedio", value=f"${precio_promedio:,.0f}".replace(",", "."), delta=f"{PrecioPromedioAnual:.2f}%")
-                st.metric(label="Margen Promedio", value=f"{margen_promedio:.0f}%".replace(",", "."), delta=f"{margen_promedio_anual:.2f}%")
-                st.metric(label="Unidades Vendidas", value=f"{unidades_vendidas:,.0f}".replace(",", "."), delta=f"{variacionAnualUnidades:.2f}%")
-            with col2:
-                ventasMensuales=datosP.groupby(["Año", "Mes"])["Unidades_vendidas"].sum().reset_index()
-                ventasMensuales["Fecha"] = pd.to_datetime(ventasMensuales["Año"].astype(str) + "-" + ventasMensuales["Mes"].astype(str) + "-01")
-                plt.figure(figsize=(10,7))
-                sns.lineplot(data=ventasMensuales, x="Fecha", y="Unidades_vendidas", label="Ventas Mensuales")
-                z= np.polyfit(range(len(ventasMensuales)), ventasMensuales["Unidades_vendidas"], 1)
-                p = np.poly1d(z)
+                st.markdown("""
+                <div style="
+                    border: 0.5px solid #ddd;
+                    padding: 0.5px;
+                    margin-bottom: 10px;
+                    border-radius: 4px;
+                    background-color: #fafafa;
+                    box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.1);">
+                """, unsafe_allow_html=True)
                 
-                plt.plot(ventasMensuales["Fecha"], p(range(len(ventasMensuales))), label="Tendencia", linestyle="--", color="red")
+                col1, col2 = st.columns([1, 2])
+                with col1:
+                    st.subheader(producto)
+                    st.metric("Precio promedio:", f"${precio_promedio:,.0f}", f"{variacionPrecioPromedio:.2f}%", delta_color="normal")
+                    st.metric("Margen promedio:", f"{margen_promedio:.0%}", f"{variacionMargenAnual:.2f}%")
+                    st.metric("Unidades Vendidas:", f"{unidades_vendidas:,.0f}", f"{variacionPorcentual:.2f}%")
                 
-                plt.title(f"Evolución de Ventas Mensuales:")
-                plt.xlabel("Año-Mes")
-                plt.ylabel("Unidades Vendidas")
-                
-                plt.legend([ (f"{producto}"), "Tendencia"], loc="upper left")
-       
-                st.pyplot(plt)
-            st.markdown("</div>", unsafe_allow_html=True)
+                with col2:
+                    ventasMensuales = datosP.groupby(["Año", "Mes"])["Unidades_vendidas"].sum().reset_index()
+                    ventasMensuales["Fecha"] = pd.to_datetime(ventasMensuales["Año"].astype(str) + "-" + ventasMensuales["Mes"].astype(str) + "-01")
+                    plt.figure(figsize=(10, 7))
+                    sns.lineplot(data=ventasMensuales, x="Fecha", y="Unidades_vendidas", label="Ventas Mensuales")
+                    z = np.polyfit(range(len(ventasMensuales)), ventasMensuales["Unidades_vendidas"], 1)
+                    p = np.poly1d(z)
+                    plt.plot(ventasMensuales["Fecha"], p(range(len(ventasMensuales))), label="Tendencia", linestyle="--", color="red")
+                    plt.title(f"Evolución de Ventas Mensuales:")
+                    plt.xlabel("Año-Mes")
+                    plt.ylabel("Unidades Vendidas")
+                    plt.legend([f"{producto}", "Tendencia"], loc="upper left")
+                    st.pyplot(plt)
+        st.markdown("</div>", unsafe_allow_html=True)
 
 
             
