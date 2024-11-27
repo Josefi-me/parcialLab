@@ -99,7 +99,7 @@ if archivo is not None:
                     #st.metric("Unidades Vendidas:", f"{unidades_vendidas:,.0f}", f"{variacionPorcentual:.2f}%")
                 
                     st.metric("Precio promedio:", f"${precio_promedio:,.0f}".replace(",", "."), delta=f"{variacionPrecioPromedio:.2f}%")
-                    st.metric("Margen promedio:", f"{margen_promedio:.0%}".replace(",", "."), delta=f"{variacionMargenAnual:.2f}%")
+                    st.metric("Margen promedio:", f"{margen_promedio:.0f}".replace(",", "."), delta=f"{variacionMargenAnual:.2f}%")
                     st.metric("Unidades Vendidas:", f"{unidades_vendidas:,.0f}".replace(",", "."), delta=f"{variacionPorcentual:.2f}%")
                 with col2:
                     ventasMensuales = datosP.groupby(["Año", "Mes"])["Unidades_vendidas"].sum().reset_index()
