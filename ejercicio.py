@@ -52,12 +52,12 @@ if archivo is not None:
         margenAnual = (datosP.groupby("Año")["Ingreso_total"].sum() - datosP.groupby("Año")["Costo_total"].sum()) / datosP.groupby("Año")["Ingreso_total"].sum()
         
         ventasAnuales = datosP.groupby("Año")["Unidades_vendidas"].sum()
-        variacionPorcentual = ventasAnuales.pct_change().iloc[-1] * 100 if len(ventasAnuales) > 1 else 0
+        variacionPorcentual = ventasAnuales.pct_change().iloc[-1] * 100
         
         precioPromedioAnual = datosP.groupby("Año")['Ingreso_total'].sum() / datosP.groupby("Año")['Unidades_vendidas'].sum()
-        variacionPrecioPromedio = precioPromedioAnual.pct_change().iloc[-1] * 100 if len(precioPromedioAnual) > 1 else 0
+        variacionPrecioPromedio = precioPromedioAnual.pct_change().iloc[-1] * 100
         
-        variacionMargenAnual = margenAnual.pct_change().iloc[-1] * 100 if len(margenAnual) > 1 else 0
+        variacionMargenAnual = margenAnual.pct_change().iloc[-1] * 100
 
 
         with st.container():
